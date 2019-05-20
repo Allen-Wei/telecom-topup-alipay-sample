@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>测试</title>
+</head>
+<body>
+<div>
+    <button id="get-validate-code">获取验证码</button>
+    <img id="validate-code" src=""/>
+</div>
+<hr>
+<div>
+    <input type="text" placeholder="输入验证码" id="validate-code-value"/>
+    <button id="pay-order">点击充值</button>
+    <img src="" id="qr-code" />
+</div>
+<script>
+    document.querySelector("#get-validate-code").addEventListener("click", () => {
+            fetch("/telecom/validate-code")
+                .then(response => response.json())
+                .then(data => {
+                    data = data[0];
+                    let image = document.querySelector("#validate-code");
+                    image.setAttribute("src", data.image);
+                    image.dataset.cookies = data.cookies;
+                });
+        },
+        false
+    );
+    document.querySelector("#pay-order").addEventListener("click", () => {
+        let code = document.querySelector("#validate-code-value").value;
+        let cookies = document.querySelector("#validate-code").dataset.cookies;
+        fetch("/telecom/pay-order?" + new URLSearchParams({validateCode: code, cookies: cookies}).toString())
+            .then(response => response.text())
+            .then(url => {
+                document.querySelector("#qr-code").setAttribute("src", url);
+            });
+    }, false);
+</script>
+</body>
+</html>
